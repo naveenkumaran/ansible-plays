@@ -1,0 +1,4 @@
+# Usage : ansible <hostname> -m ansible.builtin.setup
+- name: "Gather facts"
+  ansible.builtin.debug:
+    var: ansible_facts      

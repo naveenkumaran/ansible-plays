@@ -1,0 +1,27 @@
+# Before running the play, Create the user on the host
+# Generate a key pair for the user that will connect to the hosts(ssh-keygen)
+# Copy the key to the server using ssh-copy-id user@host(user -i to specify a customized location)
+- hosts: la
+  #gather_facts: no
+  become: yes
+  vars:
+    users:
+      - username: "ansible"       
+  tasks: 
+    - name: "Verify that group name wheel is present"
+      ansible.builtin.group: 
+        name: wheel
+        state: present  
+    - name: "If wheel group is present allow wheel group to have password less sudo"
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: visudo -cf %s
+    - name: "Add user to wheel group"
+      user:
+        name: "{{ item.username }}"
+        groups: wheel
+        append: yes
+      with_items: "{{ users }}"  
